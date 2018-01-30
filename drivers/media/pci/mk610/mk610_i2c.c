@@ -43,7 +43,7 @@ static inline void xiic_irq_clr(struct mk610_i2c *i2c, u32 mask)
 
 static inline void xiic_irq_clr_en(struct mk610_i2c *i2c, u32 mask)
 {
-	struct mk610_dev *dev = i2c->dev;
+	
 	xiic_irq_clr(i2c, mask);
 	xiic_irq_en(i2c, mask);
 }
@@ -166,7 +166,7 @@ int xiic_irq_process(struct mk610_i2c *i2c)
 	struct mk610_dev *dev = i2c->dev;
 	u32 pend, isr, ier;
 	u32 clr = 0;
-	unsigned long flags; 
+	 
 	mutex_lock(&i2c->lock);
 	isr = pci_read(MK610_I2C_BASE, MK610_IISR_OFFSET);
 	ier = pci_read(MK610_I2C_BASE, MK610_IIER_OFFSET);

@@ -43,11 +43,9 @@ static int sg_dma_init_chan_bd(struct sg_dma_channel *chan)
 	INIT_LIST_HEAD(&chan->free_seg_list);
 	
 	for (i = 0; i < SG_PACKETS; i++) {                                           
-		chan->seg_v[i].hw.next_desc = AXI_PCIE_SG_ADDR + SEG_SIZE * ((i + 1) % (SG_PACKETS)) +		
-			((chan->seg_p - gBDBufferHW) & 0xFFFFFFFF); 	
+		chan->seg_v[i].hw.next_desc = AXI_PCIE_SG_ADDR + SEG_SIZE * ((i + 1) % (SG_PACKETS)) ;	
 		
-		chan->seg_v[i].hw.buf_addr = AXI_PCIE_DATA_ADDR + TS_PACKET_SIZE * i +
-			((chan->dma_addr - gDataBufferHW) & 0xFFFFFFFF);
+		chan->seg_v[i].hw.buf_addr = AXI_PCIE_DATA_ADDR + TS_PACKET_SIZE * i ;
 		
 		chan->seg_v[i].hw.control = TS_PACKET_SIZE & SG_DMA_BD_BUFFER_LEN; 
 		chan->seg_v[i].hw.control |=  SG_DMA_BD_SOF_EOF; 
@@ -111,8 +109,7 @@ static void replace_tasklet_schedule(struct mk610_dev *dev)
 	u8 tid,k;
 	int i;
 	
-	struct sg_dma_tx_descriptor *seg_v;
-		
+	
 	spin_lock(&dev->adap_lock);			
 	k = adapter->dma.buf_cnt & 0x07;
 	data = adapter->dma.buf[k];
@@ -138,16 +135,16 @@ int sg_dma_irq_process(struct mk610_dev *dev, u32 status)
 	 }
 
 
-return_irq:
 	return 0;
 		
 }
 
 void sg_dma_enable(struct mk610_adapter *adap) 
 {
-	adap->dma.tasklet_on =true;
 	u32 status, control;
-	struct mk610_dev *dev = adap->dev;
+	struct mk610_dev *dev;
+	adap->dma.tasklet_on =true;
+	dev = adap->dev;
 	status = pci_read(SG_DMA_BASE, SG_DMA_REG_STATUS);
 	control = pci_read(SG_DMA_BASE, SG_DMA_REG_CONTROL);
 	
@@ -243,10 +240,8 @@ int sg_dma_init(struct mk610_dev *dev)
 		for (j = 1; j < SG_DMA_BUFFERS + 1; j++)
 			adapter->dma.buf[j] = adapter->dma.buf[j-1] + SG_DMA_BUF_SIZE;
 
-		adapter->dma.seg_v = gBDBuffer ; 
-		adapter->dma.seg_p = gBDBufferHW ;	
-		adapter->dma.dma_addr = gDataBufferHW;
-			
+		adapter->dma.seg_v = (struct sg_dma_tx_descriptor *)gBDBuffer ; 
+	
 		sg_dma_init_chan_bd(&adapter->dma);
 		
 		adapter->dma.buf_cnt = 0; 

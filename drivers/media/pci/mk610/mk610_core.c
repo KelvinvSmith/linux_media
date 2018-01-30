@@ -14,9 +14,9 @@
 
 #include "mk610.h"
 
-static bool enable_msi = false; //true
+static bool enable_msi = true; 
 module_param(enable_msi, bool, 0444);
-MODULE_PARM_DESC(enable_msi, "use an msi interrupt if available");
+MODULE_PARM_DESC(enable_msi, "Use MSI. Default: true");
 
 unsigned long gBaseHdwr;            
 unsigned long gBaseLen;            
@@ -57,8 +57,8 @@ static irqreturn_t mk610_irq_handler_threaded(int irq, void *dev_id)
 {
 	struct mk610_dev *dev = (struct mk610_dev *) dev_id;
 	struct mk610_i2c *i2c;
-	int i;
-	u32 stat, status, control;
+	
+	u32 stat, status;
 	/* Read and clear AXI interrupt */
 	stat = pci_read(MK610_INT_BASE, MK610_INT_IPR);
 
@@ -173,7 +173,7 @@ static int mk610_probe(struct pci_dev *pdev, const struct pci_device_id *id)
 	struct mk610_dev *dev;
 	int ret = -ENODEV;
 	int i;
-	
+	struct mk610_adapter *adapter;
 	if (pci_enable_device(pdev) < 0)
 		return -ENODEV;
 
@@ -216,20 +216,16 @@ static int mk610_probe(struct pci_dev *pdev, const struct pci_device_id *id)
 	pci_write(MK610_INT_BASE, MK610_INT_IAR, 0x0003); 
 
 	mk610_adapters_init(dev);
-	printk(KERN_INFO"good before sg_dma_init at line %d\n", __LINE__);
 
 	ret = sg_dma_init(dev);
 	if (ret < 0)
 		goto err2;
 
 	/* i2c */
-	printk(KERN_INFO"good before mk610_i2c_init at line %d\n", __LINE__);
 	ret = mk610_i2c_init(dev);
 	if (ret < 0){
-		printk(KERN_INFO"not good mk610_i2c_init at line %d\n", __LINE__);
 		goto err3;
 	}
-	printk(KERN_INFO"also good after mk610_i2c_init at line %d\n", __LINE__);
 
 	/* interrupts */
 	if (mk610_enable_msi(pdev, dev)) {
@@ -265,7 +261,7 @@ static int mk610_probe(struct pci_dev *pdev, const struct pci_device_id *id)
 	printk(KERN_INFO"probe() has no problem \n");
 
 
-	struct mk610_adapter *adapter = dev->adapter; 
+	adapter = dev->adapter; 
 	for (i = 0; i < 1; i++) {			
 		adapter->dma.tasklet_on = false;
 		sg_dma_enable_tasklet(adapter);
@@ -360,4 +356,5 @@ module_pci_driver(mk610_driver);
 MODULE_AUTHOR("xinhui.xie@gotechcn.cn");
 MODULE_DESCRIPTION("MK610 DVB S2 driver");
 MODULE_LICENSE("GPL");
+
 

@@ -182,7 +182,7 @@ static int mk610_probe(struct pci_dev *pdev, const struct pci_device_id *id)
 		dev_err(&pdev->dev, "32-bit PCI DMA not supported\n");
 		goto err0;
 	}
-
+	pci_set_master(pdev);
 	dev = kzalloc(sizeof(struct mk610_dev), GFP_KERNEL);
 	if (!dev) {
 		ret = -ENOMEM;

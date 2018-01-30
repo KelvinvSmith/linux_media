@@ -145,19 +145,6 @@ static int stop_feed(struct dvb_demux_feed *dvbdmxfeed)
 	return 0;
 }
 
-static void reset_demod(struct mk610_adapter *adapter)
-{
-	struct mk610_dev *dev = adapter->dev;
-	struct mk610_gpio_pin *reset = &adapter->cfg->gpio.demod_reset;
-
-	mk610_gpio_set_pin(dev, reset, 1);
-	usleep_range(10000, 20000);
-
-	mk610_gpio_set_pin(dev, reset, 0);
-	usleep_range(50000, 100000);
-}
-
-
 
 static int max_set_voltage(struct i2c_adapter *i2c,
 		enum fe_sec_voltage voltage, u8 rf_in)
@@ -189,14 +176,7 @@ static int max_set_voltage(struct i2c_adapter *i2c,
 	return 0;
 }
 
-static int max_send_master_cmd(struct dvb_frontend *fe, struct dvb_diseqc_master_cmd *cmd)
-{
-	return 0;
-}
-static int max_send_burst(struct dvb_frontend *fe, enum fe_sec_mini_cmd burst)
-{
-	return 0;
-}
+
 
 static struct mxl58x_cfg mk610_mxl58x_cfg = {
 	.adr		= 0x60,

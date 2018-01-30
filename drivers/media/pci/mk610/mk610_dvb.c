@@ -158,7 +158,7 @@ static int max_set_voltage(struct i2c_adapter *i2c,
 
 	switch (voltage) {
 	case SEC_VOLTAGE_13:
-		GPIO_VALUE |= MK610_GPIO_PIN(rf_in, 0); //1: lvl, 0: EN, 产生mask
+		GPIO_VALUE |= MK610_GPIO_PIN(rf_in, 0); //1: lvl, 0: EN
 		GPIO_VALUE &= ~MK610_GPIO_PIN(rf_in, 1);
 		break;
 	case SEC_VOLTAGE_18:

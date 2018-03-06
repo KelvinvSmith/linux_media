@@ -15,7 +15,7 @@ obj-y        +=	ttpci/		\
 		smipcie/	\
 		netup_unidvb/	\
 		tbsecp3/	\
-		mk610/		
+		hm610/		
 
 obj-$(CONFIG_VIDEO_IVTV) += ivtv/
 obj-$(CONFIG_VIDEO_ZORAN) += zoran/

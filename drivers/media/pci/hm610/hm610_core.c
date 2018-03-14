@@ -201,8 +201,8 @@ static int hm610_probe(struct pci_dev *pdev, const struct pci_device_id *id)
 	}
 
 	pci_write(HM610_INT_BASE, HM610_INT_MER, 0x0003); 
-	pci_write(HM610_INT_BASE, hm610_INT_IER, 0x0003);
-	pci_write(HM610_INT_BASE, hm610_INT_IAR, 0x0003); 
+	pci_write(HM610_INT_BASE, HM610_INT_IER, 0x0003);
+	pci_write(HM610_INT_BASE, HM610_INT_IAR, 0x0003); 
 
 	hm610_adapters_init(dev);
 

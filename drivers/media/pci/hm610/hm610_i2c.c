@@ -296,7 +296,7 @@ static int xiic_busy(struct hm610_i2c *i2c)
 
 	while (err && tries--) {
 		sr = pci_read(HM610_I2C_BASE, HM610_SR_REG_OFFSET);
-		err = (sr & hm610_SR_BUS_BUSY_MASK) ? -EBUSY : 0;
+		err = (sr & HM610_SR_BUS_BUSY_MASK) ? -EBUSY : 0;
 		msleep(1);
 	}
 	return err;
@@ -315,7 +315,7 @@ static void xiic_start_recv(struct hm610_i2c *i2c)
 	rx_watermark = msg->len;
 	if (rx_watermark > IIC_RX_FIFO_DEPTH)
 		rx_watermark = IIC_RX_FIFO_DEPTH;
-	pci_write(HM610_I2C_BASE, hm610_RFD_REG_OFFSET, rx_watermark - 1);
+	pci_write(HM610_I2C_BASE, HM610_RFD_REG_OFFSET, rx_watermark - 1);
 
 	if (!(msg->flags & I2C_M_NOSTART))
 

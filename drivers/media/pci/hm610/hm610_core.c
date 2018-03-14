@@ -246,9 +246,6 @@ static int hm610_probe(struct pci_dev *pdev, const struct pci_device_id *id)
 		dev->info->name, pci_name(pdev), pdev->irq,
 		(unsigned long) pci_resource_start(pdev, 0));
 
-	
-	printk(KERN_INFO"probe() has no problem \n");
-
 
 	adapter = dev->adapter; 
 	for (i = 0; i < 1; i++) {			

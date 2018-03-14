@@ -57,7 +57,7 @@ static irqreturn_t hm610_irq_handler_threaded(int irq, void *dev_id)
 	u32 stat, status;
 	stat = pci_read(HM610_INT_BASE, HM610_INT_IPR);
 
-	pci_write(HM610_INT_BASE, hm610_INT_IAR, 0x03); 
+	pci_write(HM610_INT_BASE, HM610_INT_IAR, 0x03); 
 	if (stat & 0x00000002) { 
 
 		status = pci_read(SG_DMA_BASE, SG_DMA_REG_STATUS);
@@ -317,7 +317,7 @@ static int hm610_resume(struct pci_dev *pdev)
 }
 
 /* PCI IDs */
-#define hm610_ID(_subvend) { \
+#define HM610_ID(_subvend) { \
 	.vendor = HM610_VID, .device = HM610_PID, \
 	.subvendor = PCI_ANY_ID, .subdevice = PCI_ANY_ID, \
 	.driver_data = (unsigned long)&hm610_boards[_subvend] }

@@ -55,7 +55,7 @@ static irqreturn_t hm610_irq_handler_threaded(int irq, void *dev_id)
 	struct hm610_i2c *i2c;
 	
 	u32 stat, status;
-	stat = pci_read(HM610_INT_BASE, hm610_INT_IPR);
+	stat = pci_read(HM610_INT_BASE, HM610_INT_IPR);
 
 	pci_write(HM610_INT_BASE, hm610_INT_IAR, 0x03); 
 	if (stat & 0x00000002) { 

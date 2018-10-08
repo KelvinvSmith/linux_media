@@ -163,8 +163,7 @@ static int max_set_voltage(struct i2c_adapter *i2c,
 		break;
 	case SEC_VOLTAGE_OFF:
 	default:
-
-		GPIO_VALUE |= ~HM610_GPIO_PIN(rf_in, 0);
+		GPIO_VALUE &= ~HM610_GPIO_PIN(rf_in, 0);
 		break;
 	}
 

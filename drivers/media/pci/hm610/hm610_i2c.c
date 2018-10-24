@@ -387,12 +387,11 @@ static int xiic_xfer(struct i2c_adapter *i2c_adap, struct i2c_msg *msgs, int num
 		i2c->rx_msg = NULL;
 		i2c->nmsgs = 0;
 		err = -ETIMEDOUT;
-		pr_err("i2c read error 2\n");
+		pr_err("xiic xfer i2c read error 2\n");
 
 	}
 	
 out:
-	
 	return err;
 }
 

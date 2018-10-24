@@ -125,7 +125,7 @@ static int start_feed(struct dvb_demux_feed *dvbdmxfeed)
 
 	if (!adapter->feeds)
 		sg_dma_enable(adapter);
-	printk(KERN_INFO"__start_feed__\n"); 
+//	printk(KERN_INFO"__start_feed__\n"); 
 	return ++adapter->feeds;
 }
 
@@ -204,16 +204,10 @@ static int hm610_frontend_attach(struct hm610_adapter *adapter)
 				&hm610_mxl58x_cfg, adapter->nr);
 		if (adapter->fe == NULL)
 			goto frontend_atach_fail;
-
-		if (hm610_attach_sec(adapter, adapter->fe) == NULL) {
-			dev_warn(&dev->pci_dev->dev,
-				"error attaching lnb control on adapter %d\n",
-				adapter->nr);
-		}
-
+			hm610_attach_sec(adapter, adapter->fe);
 		break;
 	default:
-		dev_warn(&dev->pci_dev->dev, "unknonw card\n");
+//		dev_warn(&dev->pci_dev->dev, "unknonw card\n");
 		return -ENODEV;
 		break;
 	}

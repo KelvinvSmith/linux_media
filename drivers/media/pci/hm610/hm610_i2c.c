@@ -99,12 +99,6 @@ static void xiic_read_rx(struct hm610_i2c *i2c)
 
 	bytes_in_fifo = pci_read(HM610_I2C_BASE, HM610_RFO_REG_OFFSET) + 1;
 
-	dev_dbg(i2c->i2c_adap.dev.parent,
-		"%s entry, bytes in fifo: %d, msg: %d, SR: 0x%x, CR: 0x%x\n",
-		__func__, bytes_in_fifo, xiic_rx_space(i2c),
-		pci_read(HM610_I2C_BASE, HM610_SR_REG_OFFSET),
-		pci_read(HM610_I2C_BASE, HM610_CR_REG_OFFSET));
-
 	if (bytes_in_fifo > xiic_rx_space(i2c))
 		bytes_in_fifo = xiic_rx_space(i2c);
 
@@ -134,14 +128,10 @@ static void xiic_fill_tx_fifo(struct hm610_i2c *i2c)
 
 	len = (len > fifo_space) ? fifo_space : len;
 
-	dev_dbg(i2c->i2c_adap.dev.parent, "%s entry, len: %d, fifo space: %d\n",
-		__func__, len, fifo_space);
-
 	while (len--) {
 		u16 data = i2c->tx_msg->buf[i2c->tx_pos++];
 		if ((xiic_tx_space(i2c) == 0) && (i2c->nmsgs == 1)) {
 			data |= HM610_TX_DYN_STOP_MASK;
-			dev_dbg(i2c->i2c_adap.dev.parent, "%s TX STOP\n", __func__);
 		}
 		pci_write(HM610_I2C_BASE, HM610_DTR_REG_OFFSET, data);
 
@@ -169,17 +159,9 @@ int xiic_irq_process(struct hm610_i2c *i2c)
 	ier = pci_read(HM610_I2C_BASE, HM610_IIER_OFFSET);
 	pend = isr & ier;
 
-	dev_dbg(i2c->i2c_adap.dev.parent, "%s: IER: 0x%x, ISR: 0x%x, pend: 0x%x\n",
-		__func__, ier, isr, pend);
-	dev_dbg(i2c->i2c_adap.dev.parent, "%s: SR: 0x%x, msg: %p, nmsgs: %d\n",
-		__func__, pci_read(HM610_I2C_BASE, HM610_SR_REG_OFFSET),
-		i2c->tx_msg, i2c->nmsgs);
-
 	if ((pend & HM610_INTR_ARB_LOST_MASK) ||
 		((pend & HM610_INTR_TX_ERROR_MASK) &&
 		!(pend & HM610_INTR_RX_FULL_MASK))) {
-
-		dev_dbg(i2c->i2c_adap.dev.parent, "%s error\n", __func__);
 
 		xiic_reinit(i2c); 
 
@@ -194,8 +176,6 @@ int xiic_irq_process(struct hm610_i2c *i2c)
 
 		clr |= HM610_INTR_RX_FULL_MASK;
 		if (!i2c->rx_msg) {
-			dev_dbg(i2c->i2c_adap.dev.parent,
-				"%s unexpexted RX IRQ\n", __func__);
 			xiic_clear_rx_fifo(i2c);
 			goto out;
 		}
@@ -207,17 +187,9 @@ int xiic_irq_process(struct hm610_i2c *i2c)
 
 			clr |= (isr & HM610_INTR_TX_ERROR_MASK);
 
-			dev_dbg(i2c->i2c_adap.dev.parent,
-				"%s end of message, nmsgs: %d\n",
-				__func__, i2c->nmsgs);
-
-
 			if (i2c->nmsgs > 1) {
 				i2c->nmsgs--;
 				i2c->tx_msg++;
-				dev_dbg(i2c->i2c_adap.dev.parent,
-					"%s will start next...\n", __func__);
-
 				__xiic_start_xfer(i2c);
 			}
 		}
@@ -246,8 +218,6 @@ int xiic_irq_process(struct hm610_i2c *i2c)
 			(HM610_INTR_TX_EMPTY_MASK | HM610_INTR_TX_HALF_MASK));
 
 		if (!i2c->tx_msg) {
-			dev_dbg(i2c->i2c_adap.dev.parent,
-				"%s unexpexted TX IRQ\n", __func__);
 			goto out;
 		}
 
@@ -256,21 +226,12 @@ int xiic_irq_process(struct hm610_i2c *i2c)
 
 		if (!xiic_tx_space(i2c) && xiic_tx_fifo_space(i2c) >= 2) {
 
-			dev_dbg(i2c->i2c_adap.dev.parent,
-				"%s end of message sent, nmsgs: %d\n",
-				__func__, i2c->nmsgs);
-
 			if (i2c->nmsgs > 1) {
 				i2c->nmsgs--;
 				i2c->tx_msg++;
-
 				__xiic_start_xfer(i2c);
 			} else {
 				xiic_irq_dis(i2c, HM610_INTR_TX_HALF_MASK);
-
-				dev_dbg(i2c->i2c_adap.dev.parent,
-					"%s Got TX IRQ but no more to do...\n",
-					__func__);
 			}
 		} else if (!xiic_tx_space(i2c) && (i2c->nmsgs == 1)){
 			xiic_irq_dis(i2c, HM610_INTR_TX_HALF_MASK);
@@ -278,10 +239,7 @@ int xiic_irq_process(struct hm610_i2c *i2c)
 
 	}
 out:
-	dev_dbg(i2c->i2c_adap.dev.parent, "%s clr: 0x%x\n", __func__, clr);
-
 	pci_write(HM610_I2C_BASE, HM610_IISR_OFFSET, clr);
-
 	mutex_unlock(&i2c->lock);
 	return 0;
 }
@@ -340,12 +298,6 @@ static void xiic_start_send(struct hm610_i2c *i2c)
 
 	xiic_irq_clr(i2c, HM610_INTR_TX_ERROR_MASK);
 
-	dev_dbg(i2c->i2c_adap.dev.parent, "%s entry, msg: %p, len: %d",
-		__func__, msg, msg->len);
-	dev_dbg(i2c->i2c_adap.dev.parent, "%s entry, ISR: 0x%x, CR: 0x%x\n",
-		__func__, pci_read(HM610_I2C_BASE, HM610_IISR_OFFSET),
-		pci_read(HM610_I2C_BASE, HM610_CR_REG_OFFSET));
-
 	if (!(msg->flags & I2C_M_NOSTART)) {
 		u16 data = ((msg->addr << 1) & 0xfe) | HM610_WRITE_OPERATION |
 			HM610_TX_DYN_START_MASK;
@@ -365,9 +317,6 @@ static void __xiic_start_xfer(struct hm610_i2c *i2c)
 {
 	int first = 1;
 	int fifo_space = xiic_tx_fifo_space(i2c);
-
-	dev_dbg(i2c->i2c_adap.dev.parent, "%s entry, msg: %p, fifos space: %d\n",
-		__func__, i2c->tx_msg, fifo_space);
 
 	if (!i2c->tx_msg)
 		return;
@@ -419,11 +368,7 @@ static int xiic_xfer(struct i2c_adapter *i2c_adap, struct i2c_msg *msgs, int num
 	struct hm610_i2c *i2c = i2c_get_adapdata(i2c_adap);
 	struct hm610_dev *dev = i2c->dev;
 	int err;
-
-	dev_dbg(i2c_adap->dev.parent, "%s entry SR: 0x%x\n", __func__,
-		pci_read(HM610_I2C_BASE, HM610_SR_REG_OFFSET));
-		
-
+	
 	err = xiic_busy(i2c);
  	if (err)
 		goto out; 

@@ -204,10 +204,14 @@ static int hm610_frontend_attach(struct hm610_adapter *adapter)
 				&hm610_mxl58x_cfg, adapter->nr);
 		if (adapter->fe == NULL)
 			goto frontend_atach_fail;
-//		hm610_attach_sec(adapter, adapter->fe);
+		if (hm610_attach_sec(adapter, adapter->fe) == NULL) {
+			dev_warn(&dev->pci_dev->dev,
+				"error attaching lnb control on adapter %d\n",
+				adapter->nr);
+		}
 		break;
 	default:
-//		dev_warn(&dev->pci_dev->dev, "unknonw card\n");
+		dev_warn(&dev->pci_dev->dev, "unknonw card\n");
 		return -ENODEV;
 		break;
 	}
